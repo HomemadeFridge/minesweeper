@@ -27,18 +27,19 @@ grid = [[0 for i in range(0,rows)] for i in range(0,columns)]
 #FUNCTIONS
 
 def drawGrid(pixels):
-    global display, rows, columns, BGCOLOUR
+    global display, rows, columns
+    BGCOLOUR = [(192,192,192),(128,128,128)]
     for i in range(0,columns):
         for j in range(0,rows):
-            pygame.draw.rect(display,(128,128,128),[(j*pixels)+(500-((rows/2)*pixels)),(i*pixels)+100,pixels,pixels])
-            pygame.draw.rect(display,(192,192,192),[(j*pixels)+(500-((rows/2)*pixels)),(i*pixels)+100,pixels,pixels],2)
+            pygame.draw.rect(display,BGCOLOUR[0],[(j*pixels)+(500-((rows/2)*pixels)),(i*pixels)+100,pixels,pixels])
+            pygame.draw.rect(display,BGCOLOUR[1],[(j*pixels)+(500-((rows/2)*pixels)),(i*pixels)+100,pixels,pixels],2)
 
 #MAIN LOOP
 while carryOn:
     for i in pygame.event.get():
         if i.type == pygame.QUIT:
             carryOn = False
-    display.fill((192,192,192))
+    display.fill((64,64,64))
 
     if columndivision < rowdivison:
         drawGrid(columndivision)
@@ -46,8 +47,8 @@ while carryOn:
         drawGrid(rowdivison)
         
     pygame.draw.rect(display,(128,128,128),[0,0,1000,100])
-    text = font.render('Minesweeper!',1,(0,0,255))
+    text = font.render('Minesweeper!',1,MINECOUNTS[random.randint(1,7)])
     display.blit(text,(380,10))
 
     pygame.display.flip()
-    framerate.tick(60)
+    framerate.tick(10)
