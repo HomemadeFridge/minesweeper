@@ -2,14 +2,16 @@ import pygame, random
 pygame.init()
 
 #PYGAME WINDOW SETUP
+rows = int(input('How many rows?\n>')); rowdivison = 1000//rows
+columns = int(input('How many columns?\n>')); columndivision = 500//columns
+
 display = pygame.display.set_mode((1000,600))
 pygame.display.set_icon(pygame.image.load('resources/gameicon.png'))
+pygame.display.set_caption('Minesweeper')
 framerate = pygame.time.Clock()
 
 #VARIABLES
 carryOn = True
-rows = int(input('How many rows?\n>')); rowdivison = 1000//rows
-columns = int(input('How many columns?\n>')); columndivision = 500//columns
 
 #COLOURS
 BLACK = (0,0,0)
@@ -44,6 +46,8 @@ while carryOn:
         drawGrid(rowdivison)
         
     pygame.draw.rect(display,(128,128,128),[0,0,1000,100])
+    text = font.render('Minesweeper!',1,(0,0,255))
+    display.blit(text,(380,10))
 
     pygame.display.flip()
     framerate.tick(60)
