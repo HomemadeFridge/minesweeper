@@ -20,6 +20,7 @@ framerate = pygame.time.Clock()
 
 #VARIABLES
 carryOn = True
+mncount = 0
 
 #COLOURS
 BLACK = (0,0,0)
@@ -51,8 +52,35 @@ def placemines():
     else:
         grid[bigpos][lowpos] = 9
 
+def smallerchecks(i,j,ival,jval,rng1,rng2):
+    global grid, mncount
+    if grid[i][j+jval] == 9:
+        mncount += 1
+    for k in range(rng1,rng2):
+        if grid[i+ival][j+k] == 9:
+            mncount += 1
+
+def edgechecks(i,j,ival,jval):
+    global grid, mncount, rows, columns
+    if i == 0 or i == columns-1:
+        if grid[i][j-1] == 9:
+            mncount += 1
+        if grid[i][j+1] == 9:
+            mncount += 1
+        for k in range(-1,2):
+            if grid[i+ival][j+k] == 9:
+                mncount += 1
+    else:
+        if grid[i-1][j] == 9:
+            mncount += 1
+        if grid[i+1][j] == 9:
+            mncount += 1
+        for k in range(-1,2):
+            if grid[i+k][j+jval] == 9:
+                mncount += 1
+
 def gridnumberlogic():
-    global grid, rows, columns
+    global grid, rows, columns, mncount
     for i in range(0,columns):
         for j in range(0,rows):
             if grid[i][j] != 9:
@@ -68,6 +96,22 @@ def gridnumberlogic():
                     for k in range(-1,2):
                         if grid[i+1][j+k] == 9:
                             mncount += 1
+                elif i == 0 and j == 0:
+                    smallerchecks(i,j,1,1,0,2)
+                elif i == 0 and j == rows-1:
+                    smallerchecks(i,j,1,-1,-1,1)
+                elif i == columns-1 and j == 0:
+                    smallerchecks(i,j,-1,1,0,2)
+                elif i == columns-1 and j == rows-1:
+                    smallerchecks(i,j,-1,-1,-1,1)
+                elif i == 0:
+                    edgechecks(i,j,1,0)
+                elif i == columns-1:
+                    edgechecks(i,j,-1,0)
+                elif j == 0:
+                    edgechecks(i,j,0,1)
+                elif j == rows-1:
+                    edgechecks(i,j,0,-1)
                 grid[i][j] = mncount
 
 #MAIN LOOP
@@ -94,3 +138,19 @@ while carryOn:
     framerate.tick(10)
 
 pygame.quit()
+
+##smaller checks can also be rewritten as:
+                    # if grid[i][j-1] == 9:
+                    #     mncount += 1
+                    # for k in range(-1,1):
+                    #     if grid[i+1][j+k] == 9:
+                    #         mncount += 1
+
+##edge checks can also be:
+                    # if grid[i][j-1] == 9:
+                    #     mncount += 1
+                    # if grid[i][j+1] == 9:
+                    #     mncount += 1
+                    # for k in range(-1,2):
+                    #     if grid[i+1][j+k] == 9:
+                    #         mncount += 1
