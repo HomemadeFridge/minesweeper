@@ -2,6 +2,7 @@
  
 This is merely a project I have decided to make. It's really just a game of minesweeper I made.
 
+> [!WARNING]
 > **[Download Python](https://www.python.org/downloads/)** if you don't have it yet. It's necessary.
 
 # Contents
