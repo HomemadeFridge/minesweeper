@@ -4,7 +4,7 @@ pygame.init()
 #PYGAME WINDOW SETUP
 rows = int(input('How many columns?\n>')); rowdivison = 1000//rows ###THESE ARE ACTUALLY COLUMNS BUT THE REPLACE DIDN'T WORK SO THEY'RE ROWS NOW
 columns = int(input('How many rows?\n>')); columndivision = 500//columns ###THESE ARE ACTUALLY ROWS BUT THE REPLACE DIDN'T WORK SO THEY'RE COLUMNS NOW
-maxboardsize = rows*columns; mines = 0
+maxboardsize = rows*columns; mines = 0; squaresize = min(rowdivison,columndivision)
 def minput(mines,maxboardsize):
     mines = int(input('How many mines?\n>'))
     if mines >= maxboardsize:
@@ -12,6 +12,7 @@ def minput(mines,maxboardsize):
         mines = minput(mines,maxboardsize)
     return mines
 mines = minput(mines,maxboardsize)
+
 
 display = pygame.display.set_mode((1000,600))
 pygame.display.set_icon(pygame.image.load('resources/gameicon.png'))
@@ -29,19 +30,27 @@ BGCOLOUR = [(192,192,192),(128,128,128)]
 
 #FONTS
 font = pygame.font.Font("mine-sweeper.TTF",20)
+numberfont = pygame.font.Font("mine-sweeper.TTF",int((squaresize-(2*(squaresize/10)))-(squaresize/5)))
 
 #GRID
 grid = [[0 for i in range(0,rows)] for i in range(0,columns)]
+plrgrid = [[1 for i in range(0,rows)] for i in range(0,columns)]
 
 #FUNCTIONS
 
 def drawGrid(pixels):
-    global display, rows, columns
+    global display, rows, columns, plrgrid, grid, MINECOUNTS, squaresize
     BGCOLOUR = [(192,192,192),(128,128,128)]
     for i in range(0,columns):
         for j in range(0,rows):
             pygame.draw.rect(display,BGCOLOUR[0],[(j*pixels)+(500-((rows/2)*pixels)),(i*pixels)+100,pixels,pixels])
             pygame.draw.rect(display,BGCOLOUR[1],[(j*pixels)+(500-((rows/2)*pixels)),(i*pixels)+100,pixels,pixels],2)
+            if plrgrid[i][j] == 1 and grid[i][j] != 0:
+                text = numberfont.render(str(grid[i][j]), 1, MINECOUNTS[grid[i][j]])
+                if grid[i][j] == 1:
+                    display.blit(text, ((j*pixels)+(500-((rows/2)*pixels))+((3)*int(squaresize/10)),(i*pixels)+100+int(squaresize/10)))
+                else:
+                    display.blit(text, ((j*pixels)+(500-((rows/2)*pixels))+int(squaresize/5),(i*pixels)+100+int(squaresize/10)))
 
 def placemines():
     global grid, rows, columns
@@ -118,7 +127,6 @@ def gridnumberlogic():
 for i in range(0,mines):
     placemines()
 gridnumberlogic()
-print(grid)
 while carryOn:
     for i in pygame.event.get():
         if i.type == pygame.QUIT:
