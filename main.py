@@ -23,6 +23,10 @@ framerate = pygame.time.Clock()
 carryOn = True
 mncount = 0
 prvij = []
+gcarryOn = True
+timed = 100
+flags = 0
+gameWon = False; gameLost = False
 
 #COLOURS
 BLACK = (0,0,0)
@@ -32,6 +36,7 @@ BGCOLOUR = [(192,192,192),(128,128,128),(160,160,160)]
 #FONTS
 font = pygame.font.Font("mine-sweeper.TTF",20)
 numberfont = pygame.font.Font("mine-sweeper.TTF",int((squaresize-(2*(squaresize/10)))-(squaresize/5)))
+mineyfont = pygame.font.Font("mine-sweeper.TTF",75)
 
 #GRID
 grid = [[0 for i in range(0,rows)] for i in range(0,columns)]
@@ -64,6 +69,9 @@ def drawGrid(pixels):
                     display.blit(text, ((j*pixels)+(500-((rows/2)*pixels))+int(squaresize/5),(i*pixels)+100+int(squaresize/10)))
             elif plrgrid[i][j] == 2:
                 text = numberfont.render('F', 1, MINECOUNTS[5])
+                display.blit(text, ((j*pixels)+(500-((rows/2)*pixels))+int(squaresize/5),(i*pixels)+100+int(squaresize/10)))
+            elif plrgrid[i][j] == 3:
+                text = numberfont.render('U', 1, MINECOUNTS[6])
                 display.blit(text, ((j*pixels)+(500-((rows/2)*pixels))+int(squaresize/5),(i*pixels)+100+int(squaresize/10)))
 
 def placemines():
@@ -143,19 +151,50 @@ def zerochecks():
     for i in range(0,columns):
         for j in range(0,rows):
             if plrgrid[i][j] == 1 and [i,j] not in prvij:
-                if i>0 and i<columns-1 and j>0 and j<rows-1:
-                    for k in range(-1,2):
-                        if grid[i-1][j+k] == 0:
-                            plrgrid[i-1][j+k] = 1; pto = True
-                    if grid[i][j-1] == 0:
-                        plrgrid[i][j-1] = 1; pto = True
-                    if grid[i][j+1] == 0:
-                        plrgrid[i][j+1] = 1; pto = True
-                    for k in range(-1,2):
-                        if grid[i+1][j+k] == 0:
-                            plrgrid[i+1][j+k] = 1; pto = True
+                if i > 0 and j > 0 and grid[i-1][j-1] == 0:
+                    plrgrid[i-1][j-1] = 1; pto = True
+                if i > 0 and grid[i-1][j] == 0:
+                    plrgrid[i-1][j] = 1; pto = True
+                if i > 0 and j < rows-1 and grid[i-1][j+1] == 0:
+                    plrgrid[i-1][j+1] = 1; pto = True
+                if j > 0 and grid[i][j-1] == 0:
+                    plrgrid[i][j-1] = 1; pto = True
+                if j < rows-1 and grid[i][j+1] == 0:
+                    plrgrid[i][j+1] = 1; pto = True
+                if i < columns-1 and j > 0 and grid[i+1][j-1] == 0:
+                    plrgrid[i+1][j-1] = 1; pto = True
+                if i < columns-1 and grid[i+1][j] == 0:
+                    plrgrid[i+1][j] = 1; pto = True
+                if i < columns-1 and j < rows-1 and grid[i+1][j+1] == 0:
+                    plrgrid[i+1][j+1] = 1; pto = True
                 prvij.append([i,j])
     return pto
+
+def zeroboundchecks():
+    global grid, rows, columns, plrgrid, prvij
+    pto = False
+    for i in range(0,columns):
+        for j in range(0,rows):
+            if plrgrid[i][j] == 1 and [i,j] not in prvij and grid[i][j] == 0:
+                if i > 0 and j > 0 and grid[i-1][j-1] != 0:
+                    plrgrid[i-1][j-1] = 1; pto = True
+                if i > 0 and grid[i-1][j] != 0:
+                    plrgrid[i-1][j] = 1; pto = True
+                if i > 0 and j < rows-1 and grid[i-1][j+1] != 0:
+                    plrgrid[i-1][j+1] = 1; pto = True
+                if j > 0 and grid[i][j-1] != 0:
+                    plrgrid[i][j-1] = 1; pto = True
+                if j < rows-1 and grid[i][j+1] != 0:
+                    plrgrid[i][j+1] = 1; pto = True
+                if i < columns-1 and j > 0 and grid[i+1][j-1] != 0:
+                    plrgrid[i+1][j-1] = 1; pto = True
+                if i < columns-1 and grid[i+1][j] != 0:
+                    plrgrid[i+1][j] = 1; pto = True
+                if i < columns-1 and j < rows-1 and grid[i+1][j+1] != 0:
+                    plrgrid[i+1][j+1] = 1; pto = True
+                prvij.append([i,j])
+    return pto
+
 #MAIN LOOP
 for i in range(0,mines):
     placemines()
@@ -165,12 +204,12 @@ while carryOn:
     for i in pygame.event.get():
         if i.type == pygame.QUIT:
             carryOn = False
-        elif i.type == pygame.MOUSEBUTTONDOWN:
+        elif i.type == pygame.MOUSEBUTTONDOWN and gcarryOn:
             if pygame.mouse.get_pressed()[0]:
                 for i in range(0,columns):
                     for j in range(0,rows):
                         if (coordgrid[i][j][0] <= mouse[0] < coordgrid[i][j][0]+squaresize) and (coordgrid[i][j][1] <= mouse[1] < coordgrid[i][j][1]+squaresize):
-                            if plrgrid[i][j] != 1:
+                            if plrgrid[i][j] != 1 and plrgrid[i][j] != 2:
                                 plrgrid[i][j] = 1
             elif pygame.mouse.get_pressed()[2]:
                 for i in range(0,columns):
@@ -178,9 +217,10 @@ while carryOn:
                         if (coordgrid[i][j][0] <= mouse[0] < coordgrid[i][j][0]+squaresize) and (coordgrid[i][j][1] <= mouse[1] < coordgrid[i][j][1]+squaresize):
                             if plrgrid[i][j] != 1 and plrgrid[i][j] != 2:
                                 plrgrid[i][j] = 2
+                                flags += 1
                             elif plrgrid[i][j] == 2:
                                 plrgrid[i][j] = 0
-                            print(plrgrid)
+                                flags -= 1
 
     display.fill((64,64,64))
 
@@ -188,6 +228,20 @@ while carryOn:
     while pto:
         pto = zerochecks()
     prvij = []
+    pto = True
+    while pto:
+        pto = zeroboundchecks()
+    prvij = []
+    
+    gameWon = True
+    for i in range(0,columns):
+        for j in range(0,rows):
+            if plrgrid[i][j] == 1 and grid[i][j] == 9 and gcarryOn:
+                print('get mined.')
+                gcarryOn = False
+                gameLost = True
+            elif plrgrid[i][j] != 1 and grid[i][j] != 9 and gcarryOn:
+                gameWon = False
 
     if columndivision < rowdivison:
         drawGrid(columndivision)
@@ -197,8 +251,29 @@ while carryOn:
     pygame.draw.rect(display,(128,128,128),[0,0,1000,100])
     text = font.render('Minesweeper!',1,MINECOUNTS[random.randint(1,7)])
     display.blit(text,(380,10))
+    if not gameLost and gameWon:
+        gcarryOn = False
+        for i in range(0,columns):
+            for j in range(0,rows):
+                if grid[i][j] == 9 and plrgrid[i][j] == 0:
+                    plrgrid[i][j] = 2
+                    flags += 1
+    if not gcarryOn and gameLost:
+        text = font.render('Game  Over   :(',1,MINECOUNTS[5])
+        display.blit(text,(380,50))
+    elif not gcarryOn and gameWon and not gameLost:
+        text = font.render('You           win!',1,MINECOUNTS[2])
+        display.blit(text,(380,50))
+    text = mineyfont.render(str(timed//60),1,MINECOUNTS[1])
+    display.blit(text,(700,-2))
+    text = mineyfont.render(str(mines-flags),1,MINECOUNTS[1])
+    display.blit(text,(100,-2))
 
     pygame.display.flip()
+
+    if gcarryOn: timed += 1
+    if timed//60 >= 999: gcarryOn = False
+
     framerate.tick(60)
 pygame.quit()
 
@@ -217,3 +292,23 @@ pygame.quit()
                     # for k in range(-1,2):
                     #     if grid[i+1][j+k] == 9:
                     #         mncount += 1
+
+# def zerochecks():
+#     global grid, rows, columns, plrgrid, prvij
+#     pto = False
+#     for i in range(0,columns):
+#         for j in range(0,rows):
+#             if plrgrid[i][j] == 1 and [i,j] not in prvij:
+#                 if i>0 and i<columns-1 and j>0 and j<rows-1:
+#                     for k in range(-1,2):
+#                         if grid[i-1][j+k] == 0:
+#                             plrgrid[i-1][j+k] = 1; pto = True
+#                     if grid[i][j-1] == 0:
+#                         plrgrid[i][j-1] = 1; pto = True
+#                     if grid[i][j+1] == 0:
+#                         plrgrid[i][j+1] = 1; pto = True
+#                     for k in range(-1,2):
+#                         if grid[i+1][j+k] == 0:
+#                             plrgrid[i+1][j+k] = 1; pto = True
+#                 prvij.append([i,j])
+#     return pto
