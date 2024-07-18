@@ -1,4 +1,5 @@
 import pygame, random
+from data import *
 pygame.init()
 
 #PYGAME WINDOW SETUP
@@ -32,6 +33,7 @@ gameWon = False; gameLost = False
 BLACK = (0,0,0)
 MINECOUNTS = [('Not a colour.'),(0,0,255),(0,128,0),(255,0,0),(0,0,128),(128,0,0),(0,128,128),(0,0,0),(128,128,128),(255,255,255)] #NOTE: Numbers are in right position (1,2,3,4,5,6,7,8,9), No offset. 9 is there because why not.
 BGCOLOUR = [(192,192,192),(128,128,128),(160,160,160)]
+SEG7COLOURS = [(0,0,0),(64,0,0),(255,0,0)]
 
 #FONTS
 font = pygame.font.Font("mine-sweeper.TTF",20)
@@ -195,6 +197,14 @@ def zeroboundchecks():
                 prvij.append([i,j])
     return pto
 
+def draw7segments(display, colour, offset, i):
+    global SEG7COLOURS
+    for j, on in enumerate(binaries[i]):
+        if on:
+            pygame.draw.rect(display, SEG7COLOURS[2], pygame.Rect(positions[j]).move(offset, 0))
+        else:
+            pygame.draw.rect(display, SEG7COLOURS[1], pygame.Rect(positions[j]).move(offset, 0))
+
 #MAIN LOOP
 for i in range(0,mines):
     placemines()
@@ -215,7 +225,7 @@ while carryOn:
                 for i in range(0,columns):
                     for j in range(0,rows):
                         if (coordgrid[i][j][0] <= mouse[0] < coordgrid[i][j][0]+squaresize) and (coordgrid[i][j][1] <= mouse[1] < coordgrid[i][j][1]+squaresize):
-                            if plrgrid[i][j] != 1 and plrgrid[i][j] != 2:
+                            if plrgrid[i][j] != 1 and plrgrid[i][j] != 2 and (mines-flags)>0:
                                 plrgrid[i][j] = 2
                                 flags += 1
                             elif plrgrid[i][j] == 2:
@@ -258,21 +268,43 @@ while carryOn:
                 if grid[i][j] == 9 and plrgrid[i][j] == 0:
                     plrgrid[i][j] = 2
                     flags += 1
+    elif gameLost:
+        gcarryOn = False
+        for i in range(0,columns):
+            for j in range(0,rows):
+                if grid[i][j] == 9 and plrgrid[i][j] == 0:
+                    plrgrid[i][j] = 3
     if not gcarryOn and gameLost:
         text = font.render('Game  Over   :(',1,MINECOUNTS[5])
         display.blit(text,(380,50))
     elif not gcarryOn and gameWon and not gameLost:
         text = font.render('You           win!',1,MINECOUNTS[2])
         display.blit(text,(380,50))
-    text = mineyfont.render(str(timed//60),1,MINECOUNTS[1])
-    display.blit(text,(700,-2))
-    text = mineyfont.render(str(mines-flags),1,MINECOUNTS[1])
-    display.blit(text,(100,-2))
+    # text = mineyfont.render(str(timed//60),1,MINECOUNTS[1])
+    # display.blit(text,(700,-2))
+    # text = mineyfont.render(str(mines-flags),1,MINECOUNTS[1])
+    # display.blit(text,(100,-2))
+
+    pygame.draw.rect(display,SEG7COLOURS[0],[90,0,190,100])
+    pygame.draw.rect(display,SEG7COLOURS[0],[720,0,190,100])
+
+    draw7segments(display, MINECOUNTS[5], 100, (mines-flags)//100)
+    draw7segments(display, MINECOUNTS[5], 160, ((mines-flags)%100)//10)
+    draw7segments(display, MINECOUNTS[5], 220, (mines-flags)%10)
+
+    draw7segments(display, MINECOUNTS[5], (1000-270), (timed//60)//100)
+    draw7segments(display, MINECOUNTS[5], (1000-210), ((timed//60)%100)//10)
+    draw7segments(display, MINECOUNTS[5], (1000-150), (timed//60)%10)
 
     pygame.display.flip()
 
     if gcarryOn: timed += 1
-    if timed//60 >= 999: gcarryOn = False
+    if timed//60 >= 999: 
+        gcarryOn = False
+        gameLost = True
+    
+    ##IF YOU WANT TO REMOVE THE TIME LIMIT, USE THIS INSTEAD OF THE ABOVE:
+    ##if timed//60 >= 999: timed = 0
 
     framerate.tick(60)
 pygame.quit()
