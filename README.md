@@ -13,6 +13,12 @@ This game will include:
 - Customisable boards
 - Many more
 
+> [!NOTE]
+> To restart the game, click inbetween the two 7 segment digit displays, in the area where it has the rainbow text:
+> ```MINESWEEPER!```
+
+# Installation
+
 In order to install the requirements for this game, using cmd terminal, run:
 ```bash
 pip install pygame
