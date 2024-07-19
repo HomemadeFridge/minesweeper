@@ -41,14 +41,16 @@ numberfont = pygame.font.Font("mine-sweeper.TTF",int((squaresize-(2*(squaresize/
 mineyfont = pygame.font.Font("mine-sweeper.TTF",75)
 
 #GRID
-grid = [[0 for i in range(0,rows)] for i in range(0,columns)]
-plrgrid = [[0 for i in range(0,rows)] for i in range(0,columns)]
-coordgrid = []; temp = []
-for i in range(0, columns):
-    for j in range(0,rows):
-        temp.append([(j*squaresize)+(500-((rows/2)*squaresize)),(i*squaresize)+100])
-    coordgrid.append(temp)
-    temp = []
+def makegrid():
+    global grid, plrgrid, coordgrid, columns, rows
+    grid = [[0 for i in range(0,rows)] for i in range(0,columns)]
+    plrgrid = [[0 for i in range(0,rows)] for i in range(0,columns)]
+    coordgrid = []; temp = []
+    for i in range(0, columns):
+        for j in range(0,rows):
+            temp.append([(j*squaresize)+(500-((rows/2)*squaresize)),(i*squaresize)+100])
+        coordgrid.append(temp)
+        temp = []
 
 #FUNCTIONS
 
@@ -206,6 +208,9 @@ def draw7segments(display, colour, offset, i):
             pygame.draw.rect(display, SEG7COLOURS[1], pygame.Rect(positions[j]).move(offset, 0))
 
 #MAIN LOOP
+
+makegrid()
+
 for i in range(0,mines):
     placemines()
 gridnumberlogic()
@@ -214,14 +219,24 @@ while carryOn:
     for i in pygame.event.get():
         if i.type == pygame.QUIT:
             carryOn = False
-        elif i.type == pygame.MOUSEBUTTONDOWN and gcarryOn:
+        elif i.type == pygame.MOUSEBUTTONDOWN:
             if pygame.mouse.get_pressed()[0]:
-                for i in range(0,columns):
-                    for j in range(0,rows):
-                        if (coordgrid[i][j][0] <= mouse[0] < coordgrid[i][j][0]+squaresize) and (coordgrid[i][j][1] <= mouse[1] < coordgrid[i][j][1]+squaresize):
-                            if plrgrid[i][j] != 1 and plrgrid[i][j] != 2:
-                                plrgrid[i][j] = 1
-            elif pygame.mouse.get_pressed()[2]:
+                if (280 < mouse[0] < 720) and (0 <= mouse[1] < 100):
+                    makegrid()
+                    for i in range(0,mines):
+                        placemines()
+                    gridnumberlogic()
+                    flags = 0; timed = 0
+                    gcarryOn = True
+                    gameLost = False
+                    gameWon = False
+                elif gcarryOn:
+                    for i in range(0,columns):
+                        for j in range(0,rows):
+                            if (coordgrid[i][j][0] <= mouse[0] < coordgrid[i][j][0]+squaresize) and (coordgrid[i][j][1] <= mouse[1] < coordgrid[i][j][1]+squaresize):
+                                if plrgrid[i][j] != 1 and plrgrid[i][j] != 2:
+                                    plrgrid[i][j] = 1
+            elif pygame.mouse.get_pressed()[2] and gcarryOn:
                 for i in range(0,columns):
                     for j in range(0,rows):
                         if (coordgrid[i][j][0] <= mouse[0] < coordgrid[i][j][0]+squaresize) and (coordgrid[i][j][1] <= mouse[1] < coordgrid[i][j][1]+squaresize):
