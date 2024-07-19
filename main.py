@@ -25,9 +25,9 @@ carryOn = True
 mncount = 0
 prvij = []
 gcarryOn = True
-timed = 100
+timed = 0
 flags = 0
-gameWon = False; gameLost = False
+gameWon = False; gameLost = False; hasclicked = False
 
 #COLOURS
 BLACK = (0,0,0)
@@ -230,12 +230,14 @@ while carryOn:
                     gcarryOn = True
                     gameLost = False
                     gameWon = False
+                    hasclicked = False
                 elif gcarryOn:
                     for i in range(0,columns):
                         for j in range(0,rows):
                             if (coordgrid[i][j][0] <= mouse[0] < coordgrid[i][j][0]+squaresize) and (coordgrid[i][j][1] <= mouse[1] < coordgrid[i][j][1]+squaresize):
                                 if plrgrid[i][j] != 1 and plrgrid[i][j] != 2:
                                     plrgrid[i][j] = 1
+                                    hasclicked = True
             elif pygame.mouse.get_pressed()[2] and gcarryOn:
                 for i in range(0,columns):
                     for j in range(0,rows):
@@ -262,7 +264,6 @@ while carryOn:
     for i in range(0,columns):
         for j in range(0,rows):
             if plrgrid[i][j] == 1 and grid[i][j] == 9 and gcarryOn:
-                print('get mined.')
                 gcarryOn = False
                 gameLost = True
             elif plrgrid[i][j] != 1 and grid[i][j] != 9 and gcarryOn:
@@ -313,7 +314,7 @@ while carryOn:
 
     pygame.display.flip()
 
-    if gcarryOn: timed += 1
+    if gcarryOn and hasclicked: timed += 1
     if timed//60 >= 999: 
         gcarryOn = False
         gameLost = True
